@@ -14,6 +14,12 @@ async function connect(){
     return db;
 }
 
+async function query(sql) {
+    const connection = await connect();
+    const [results] = await connection.query(sql);
+    return results;
+}
+
 module.exports = {
-    connect
+    query
 }

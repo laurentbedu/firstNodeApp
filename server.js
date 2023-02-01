@@ -3,9 +3,9 @@ const app = express();
 
 const db = require("./api/services/database.service")
 
-app.get('/', (req, res) => {
-    db.connect();
-    res.send("OK");
+app.get('/', async (req, res) => {
+    const result = await db.query("SHOW tables ;");
+    res.json({result});
 });
 
 app.get('/test', (req, res) => {
