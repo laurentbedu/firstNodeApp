@@ -1,7 +1,10 @@
 const express = require("express");
 const app = express();
 
+const db = require("./api/services/database.service")
+
 app.get('/', (req, res) => {
+    db.connect();
     res.send("OK");
 });
 
