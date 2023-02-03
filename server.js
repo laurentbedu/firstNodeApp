@@ -1,5 +1,9 @@
 const express = require("express");
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+const cors = require("cors");
+app.use(cors());
 
 const db = require("./api/services/database.service")
 
@@ -11,33 +15,78 @@ app.get('/', async (req, res) => {
     res.json({duration, result});
 });
 
-app.get('/theme', async (req, res) => {
+app.get('/category', async (req, res) => {
     //récuperer toutes les lignes de la table theme
-    res.send("All themes");
+    const data = await db.query("SELECT * FROM category;");
+    res.send({data, result: true, message:"Get all categories"});
 });
 
-app.get('/article', async (req, res) => {
+app.get('/product', async (req, res) => {
     //récuperer toutes les lignes de la table article
-    res.send("All articles");
+    const data = await db.query("SELECT * FROM product;");
+    res.send({data, result: true, message:"Get all products"});
 });
 
-app.get('/theme/:id', async (req, res) => {
+app.get('/category/:id', async (req, res) => {
     //récuperer la ligne de la table theme qui a pour id:id
-    res.send("A theme with an id");
+    const id = req.params.id;
+    const data = await db.query(`SELECT * FROM category WHERE id = ${id}`);
+    res.send({data, result: true, message:`Get category with id = ${id}`});
 });
 
-app.get('/article/:id', async (req, res) => {
+app.get('/product/:id', async (req, res) => {
     //récuperer la ligne de la table article qui a pour id:id
-    res.send("An article with an id");
+    const id = req.params.id;
+    const data = await db.query(`SELECT * FROM product WHERE id = ${id}`);
+    res.send({data, result: true, message:`Get product with id = ${id}`});
 });
 
-// app.get('/test', (req, res) => {
-//     res.send("test");
-// });
+app.post("/category", async (req, res) => {
+    //créer un category en db
+    const {title, description, image} = req.body;
+    const data = await db.query(`INSERT INTO category (title, description, image) VALUES ('${title}', '${description}', '${image}')`);
+    const inserted = {id:data.insertId, title, description, image};
+    res.json({data: inserted, result: true, message: `category inserted with id = ${inserted.id}`});
+});
 
-// app.get("*", (req, res) => {
-//     res.send("*");
-// });
+app.post("/product", async (req, res) => {
+    //créer un procuct en db
+    const {title, price, description, image, category_id} = req.body;
+    const data = await db.query(`INSERT INTO product (title, price, description, image, category_id) 
+                                    VALUES ('${title}', '${price}', '${description}', '${image}', '${category_id}')`);
+    const inserted = {id:data.insertId, title, price, description, image, category_id};
+    res.json({data: inserted, result: true, message: `product inserted with id = ${inserted.id}`});
+});
+
+app.put("/category/:id", async (req, res) => {
+    //mettre à jour la category ayant l'id:id
+    //SQL UPDATE
+});
+
+app.put("/product/:id", async (req, res) => {
+    //mettre à jour la product ayant l'id:id
+    //SQL UPDATE
+});
+
+app.patch("/category/:id", async (req, res) => {
+    //soft delete de la category ayant l'id:id
+    //SQL UPDATE
+});
+
+app.patch("/product/:id", async (req, res) => {
+    //soft delete du product ayant l'id:id
+    //SQL UPDATE
+});
+
+app.delete("/category/:id", async (req, res) => {
+    //hard delete de la category ayant l'id:id
+    //SQL DELETE
+});
+
+app.delete("/product/:id", async (req, res) => {
+    //hard delete du product ayant l'id:id
+    //SQL DELETE
+});
 
 const PORT = 5000;
 app.listen(PORT, () => {
