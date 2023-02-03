@@ -97,8 +97,14 @@ app.patch("/product/:id", async (req, res) => {
 app.delete("/category/:id", async (req, res) => {
     //hard delete de la category ayant l'id:id
     const id = req.params.id;
-    const data = await db.query(`DELETE FROM category WHERE id = ${id}`);
-    res.json({data: null, result: true, message: `category with id = ${id} deleted (hard)`});
+    await db.query(`DELETE FROM category WHERE id = ${id}`)
+    .then(data => {
+        res.json({data: null, result: true, message: `category with id = ${id} deleted (hard)`});
+    })
+    .catch(err => {
+        res.json({data: null, result: false, message: err.message});
+    });
+    
 });
 
 app.delete("/product/:id", async (req, res) => {
