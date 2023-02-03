@@ -98,7 +98,7 @@ app.delete("/category/:id", async (req, res) => {
     //hard delete de la category ayant l'id:id
     const id = req.params.id;
     await db.query(`DELETE FROM category WHERE id = ${id}`)
-    .then(data => {
+    .then(() => {
         res.json({data: null, result: true, message: `category with id = ${id} deleted (hard)`});
     })
     .catch(err => {
