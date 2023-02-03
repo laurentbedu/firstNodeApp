@@ -43,6 +43,9 @@ app.get('/product/:id', async (req, res) => {
 
 app.post("/category", async (req, res) => {
     //créer un category en db
+    for(const entry in req.body){
+        req.body[entry] = req.body[entry].replace(/'/g, "\\'");
+    }
     const {title, description, image} = req.body;
     const data = await db.query(`INSERT INTO category (title, description, image) VALUES ('${title}', '${description}', '${image}')`);
     const inserted = {id:data.insertId, title, description, image};
@@ -51,6 +54,9 @@ app.post("/category", async (req, res) => {
 
 app.post("/product", async (req, res) => {
     //créer un procuct en db
+    for(const entry in req.body){
+        req.body[entry] = req.body[entry].replace(/'/g, "\\'");
+    }
     const {title, price, description, image, category_id} = req.body;
     const data = await db.query(`INSERT INTO product (title, price, description, image, category_id) 
                                     VALUES ('${title}', '${price}', '${description}', '${image}', '${category_id}')`);
@@ -60,7 +66,14 @@ app.post("/product", async (req, res) => {
 
 app.put("/category/:id", async (req, res) => {
     //mettre à jour la category ayant l'id:id
-    //SQL UPDATE
+    for(const entry in req.body){
+        req.body[entry] = req.body[entry].replace(/'/g, "\\'");
+    }
+    const {title, description, image} = req.body;
+    const id = req.params.id;
+    await db.query(`UPDATE category SET title = '${title}', description = '${description}', image = '${image}' WHERE id = ${id}`);
+    const updated = {id, title, description, image};
+    res.json({data: updated, result: true, message: `category with id = ${id} updated`});
 });
 
 app.put("/product/:id", async (req, res) => {
@@ -70,7 +83,10 @@ app.put("/product/:id", async (req, res) => {
 
 app.patch("/category/:id", async (req, res) => {
     //soft delete de la category ayant l'id:id
-    //SQL UPDATE
+    const id = req.params.id;
+    await db.query(`UPDATE category SET is_deleted = 1 WHERE id = ${id}`);
+    const data = await db.query(`SELECT * FROM category WHERE id = ${id}`);
+    res.json({data, result: true, message: `category with id = ${id} deleted (soft)`});
 });
 
 app.patch("/product/:id", async (req, res) => {
@@ -80,7 +96,9 @@ app.patch("/product/:id", async (req, res) => {
 
 app.delete("/category/:id", async (req, res) => {
     //hard delete de la category ayant l'id:id
-    //SQL DELETE
+    const id = req.params.id;
+    const data = await db.query(`DELETE FROM category WHERE id = ${id}`);
+    res.json({data: null, result: true, message: `category with id = ${id} deleted (hard)`});
 });
 
 app.delete("/product/:id", async (req, res) => {
